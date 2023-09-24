@@ -235,7 +235,7 @@ exports.webhochCheckout = asyncHandler(async (req, res, next) => {
   }
   if (event.type === "checkout.session.completed") {
     // console.log(event.client_reference_id);
-    createCardOrder(event);
+    createCardOrder(event.data.object);
     res.status(200).json({ received: true });
   }
 });
