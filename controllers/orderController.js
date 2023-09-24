@@ -8,6 +8,7 @@ const APIError = require("../utils/apiError");
 const Order = require("../models/orderModel");
 const Cart = require("../models/cartModel");
 const Product = require("../models/productModel");
+const User = require("../models/userModel");
 const handlerFactory = require("./handlerFactory");
 
 // @desc   create order
@@ -187,7 +188,38 @@ exports.checkOutSession = asyncHandler(async (req, res, next) => {
 //   res.status(200).json({ status: "success", session });
 // });
 
-const createCardOrder = (session) => {};
+const createCardOrder = async (session) => {
+  const cartId = session.client_reference_id;
+  const email = session.customer_email;
+  const shippingAddress = session.custom_text.shipping_address;
+  const totalPrice = session.line_items.price.unit_amount / 100;
+
+  const cart = await Cart.findById(cartId);
+  const user = await User.findOne(email);
+
+  const order = await Order.create({
+    user: user.id,
+    cartItems: cart.cartItems,
+    totalOrderPrice: totalPrice,
+    shippingAddress,
+    isPaid: true,
+    paidAt: Date.now(),
+    paymentMethodType: "card",
+  });
+  if (order) {
+    const bulkOptions = cart.cartItems.map((cartItem) => ({
+      updateOne: {
+        filter: { _id: cartItem.product },
+        update: {
+          $inc: { quantity: -cartItem.quantity, sold: +cartItem.quantity },
+        },
+      },
+    }));
+    await Product.bulkWrite(bulkOptions, {});
+    //5) delete cartItems
+    await Cart.findByIdAndDelete(cartId);
+  }
+};
 
 exports.webhochCheckout = asyncHandler(async (req, res, next) => {
   const sig = req.headers["stripe-signature"];
@@ -203,6 +235,8 @@ exports.webhochCheckout = asyncHandler(async (req, res, next) => {
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
   if (event.type === "checkout.session.completed") {
-    createCardOrder(event.client_reference_id);
+    // console.log(event.client_reference_id);
+    createCardOrder(event);
+    res.status(200).json({ received: true });
   }
 });
