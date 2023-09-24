@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 // const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
+const cors = require("cors");
+const compression = require("compression");
 
 const dbconnection = require("./config/database");
 const APIError = require("./utils/apiError");
@@ -14,6 +16,8 @@ dotenv.config({ path: "./.env" });
 
 //Express App
 const app = express();
+app.use(cors());
+app.use(compression());
 
 // connect DB
 dbconnection();
