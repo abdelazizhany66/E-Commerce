@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start:dev": "nodemon server.js",
-    "start": "NODE_ENV=production node server.js"
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -44,6 +43,6 @@
     "prettier": "^3.0.3"
   },
   "engines": {
-    "node": "18.13.0"
+    "node": ">=18.13.0"
   }
 }
