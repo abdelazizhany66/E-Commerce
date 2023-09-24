@@ -190,17 +190,16 @@ exports.checkOutSession = asyncHandler(async (req, res, next) => {
 
 const createCardOrder = async (session) => {
   const cartId = session.client_reference_id;
-  const email = session.customer_email;
-  const shippingAddress = session.custom_text.shipping_address;
-  const totalPrice = session.line_items.price.unit_amount / 100;
+  const shippingAddress = session.metadata;
+  const orderPrice = session.amount_total / 100;
 
   const cart = await Cart.findById(cartId);
-  const user = await User.findOne(email);
+  const user = await User.findOne({ email: session.customer_email });
 
   const order = await Order.create({
     user: user.id,
     cartItems: cart.cartItems,
-    totalOrderPrice: totalPrice,
+    totalOrderPrice: orderPrice,
     shippingAddress,
     isPaid: true,
     paidAt: Date.now(),
