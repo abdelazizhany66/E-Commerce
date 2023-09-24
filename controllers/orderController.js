@@ -197,7 +197,7 @@ const createCardOrder = async (session) => {
   const user = await User.findOne({ email: session.customer_email });
 
   const order = await Order.create({
-    user: user.id,
+    user: user._id,
     cartItems: cart.cartItems,
     totalOrderPrice: orderPrice,
     shippingAddress,
