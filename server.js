@@ -11,22 +11,28 @@ const dbconnection = require("./config/database");
 const APIError = require("./utils/apiError");
 const globalError = require("./middleware/errorMiddleware");
 const mountRoute = require("./routes");
+const { webhochCheckout } = require("./controllers/orderController");
 
 dotenv.config({ path: "./.env" });
+// connect DB
+dbconnection();
 
 //Express App
 const app = express();
 app.use(cors());
 app.use(compression());
 
-// connect DB
-dbconnection();
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  webhochCheckout
+);
+
+//Middlewares
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
   console.log(`mode:${process.env.NODE_ENV}`);
 }
-
-//Middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // app.use(cookieParser());
