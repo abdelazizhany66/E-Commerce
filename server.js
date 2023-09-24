@@ -23,7 +23,7 @@ app.use(cors());
 app.use(compression());
 
 app.post(
-  "/webhook",
+  "/webhook-checkout",
   express.raw({ type: "application/json" }),
   webhochCheckout
 );
