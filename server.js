@@ -43,7 +43,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "uploads")));
 
-//securty
+//security
 //clean up a ttack query nosql in body or params such as {$gt:''} before validation
 app.use(mongoSanitize());
 // convert code html to word before validation
